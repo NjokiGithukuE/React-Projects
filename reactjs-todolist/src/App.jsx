@@ -17,7 +17,7 @@ function App() {
     setTodos(newTodoList);
   }
 
-  function handleEditTodos(index) {
+  function handleEditTodo(index) {
     const valueToBeEditted = todos[index];
     setTodoValue(valueToBeEditted);
     handleDeleteTodo(index);
@@ -31,7 +31,7 @@ function App() {
         handleAddTodos={handleAddTodos}
       />
       <TodoList
-        handleEditTodos={handleEditTodos}
+        handleEditTodos={handleEditTodo}
         handleDeleteTodos={handleDeleteTodo}
         todos={todos}
       />
