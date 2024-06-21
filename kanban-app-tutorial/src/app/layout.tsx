@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
+import Navbar from "./components/Navbar";
 import "./globals.css";
+import { Providers } from "../redux/provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const pjs = Plus_Jakarta_Sans({subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -11,12 +13,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className={pjs.className}>
+      <body>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
