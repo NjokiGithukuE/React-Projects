@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal, ModalBody } from "./Modal";
+import { Modal, ModalBody } from "./Modals";
 import { useAppDispatch, useAppSelector } from "@/components/redux/hooks";
 import {
   getAddAndEditTaskModalValue,
@@ -16,7 +16,7 @@ import {
   useFetchDataFromDbQuery,
   useUpdateBoardToDbMutation,
 } from "@/components/redux/services/apiSlice";
-import { id } from "../utils/data";
+import { id } from "../../../utils/data";
 
 interface ITaskData {
   id: string;

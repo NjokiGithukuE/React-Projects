@@ -22,24 +22,45 @@ interface Column {
 }
 
 export default function BoardTasks() {
+  // Get loading state and data from the useFetchDataFromDbQuery endpoint
   const { isLoading, data } = useFetchDataFromDbQuery();
+  // Manage column data in columns state
   const [columns, setColumns] = useState<Column[]>([]);
+  // Get active board name from the redux store
   const activeBoard = useAppSelector(getCurrentBoardName);
 
-  const dispatch = useAppDispatch();
+  // Once data fetches successfully, this function in the useEffect runs
+  useEffect(() => {
+    if (data !== undefined) {
+      const [boards] = data;
+      if (boards) {
+        // Get the data of the active board
+        const activeBoardData = boards.boards.find(
+          (board: { name: string }) => board.name === activeBoard
+        );
+        if (activeBoardData) {
+          const { columns } = activeBoardData;
+          setColumns(columns);
+        }
+      }
+    }
+  }, [data, activeBoard]);
 
   // check if it’s the first render
 const initialRender = useRef(true);
 
+
 const handleDragEnd = async ({ destination, source }: any) => {
   // Check if the destination is not null (i.e., it was dropped in a valid droppable)
   if (!destination) return;
+
 
   // get a deep nested copy of the columns state
   const newColumns = columns.map((column) => ({
     ...column,
     tasks: [...column.tasks], // Create a new array for tasks
   }));
+
 
   // Find the source and destination columns based on their droppableIds
   const sourceColumnIndex = newColumns.findIndex(
@@ -49,11 +70,14 @@ const handleDragEnd = async ({ destination, source }: any) => {
     (col) => col.id === destination.droppableId
   );
 
+
   // Task that was dragged
   const itemMoved = newColumns[sourceColumnIndex]?.tasks[source.index];
 
+
   // Remove from its source
   newColumns[sourceColumnIndex].tasks.splice(source.index, 1);
+
 
   // Insert into its destination
   newColumns[destinationColumnIndex].tasks.splice(
@@ -61,6 +85,7 @@ const handleDragEnd = async ({ destination, source }: any) => {
     0,
     itemMoved
   );
+
 
   // Update the state
   setColumns(newColumns);
@@ -95,21 +120,6 @@ useEffect(() => {
   }
 }, [columns]);
 
-  useEffect(() => {
-    if (data !== undefined) {
-      const [boards] = data;
-      if (boards) {
-        const activeBoardData = boards.boards.find(
-          (board: { name: string }) => board.name === activeBoard
-        );
-        if (activeBoardData) {
-          const { columns } = activeBoardData;
-          setColumns(columns);
-        }
-      }
-    }
-  }, [data, activeBoard]);
-
   return (
     <div className="overflow-x-auto overflow-y-auto w-full p-6 bg-stone-200">
       {/* If data has not been fetched successfully, display a loading state, else display the column of tasks */}
@@ -121,102 +131,51 @@ useEffect(() => {
         <>
           {/* If columns of tasks isn't empty: display the tasks, else display the prompt to add a new column */}
           {columns.length > 0 ? (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="flex space-x-6">
-                {columns.map((column, index) => {
-                  const { id, name } = column;
-                  return (
-                    <div key={id} className="w-[17.5rem] shrink-0">
-                      <p className="text-black">{`${column.name} (${
-                        column.tasks ? column.tasks?.length : 0
-                      })`}</p>
-                      <Droppable droppableId={id}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className="h-full"
-                          >
-                            {column.tasks &&
-                              // Display the tasks if there are tasks in the column, if not, display an empty column
-                              (column.tasks.length > 0 ? (
-                                column.tasks.map((task, index) => {
-                                  const { id, title, status } = task;
-                                  return (
-                                    <Draggable
-                                      key={id}
-                                      draggableId={id}
-                                      index={index}
-                                    >
-                                      {(provided) => (
-                                        <div
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          className="bg-white p-6 rounded-md mt-6 flex items-center justify-between border"
-                                        >
-                                          <p>{task.title}</p>
-                                          <div className="flex items-center space-x-1">
-                                            <MdEdit
-                                              onClick={() =>
-                                                dispatch(
-                                                  openAddAndEditTaskModal({
-                                                    variant: "Edit Task",
-                                                    title,
-                                                    index,
-                                                    name,
-                                                  })
-                                                )
-                                              }
-                                              className="text-lg cursor-pointer"
-                                            />
-                                            <MdDelete
-                                              onClick={() =>
-                                                dispatch(
-                                                  openDeleteBoardAndTaskModal({
-                                                    variant:
-                                                      "Delete this task?",
-                                                    title,
-                                                    status,
-                                                    index,
-                                                  })
-                                                )
-                                              }
-                                              className="text-lg cursor-pointer text-red-500"
-                                            />
-                                          </div>
-                                        </div>
-                                      )}
-                                    </Draggable>
-                                  );
-                                })
-                              ) : (
-                                <div className="mt-6 h-full rounded-md border-dashed border-4 border-white" />
-                              ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </div>
-                  );
-                })}
-                {/* If the number of columns of tasks is less than 7, display an option to add more columns */}
-                {columns.length < 7 ? (
-                  <div
-                    onClick={() =>
-                      dispatch(openAddAndEditBoardModal("Edit Board"))
-                    }
-                    className="rounded-md bg-white w-[17.5rem] mt-12 shrink-0 flex justify-center items-center"
-                  >
-                    <p className="cursor-pointer font-bold text-black text-2xl">
-                      + New Column
-                    </p>
+            <div className="flex space-x-6">
+              {columns.map((column) => {
+                const { id, name, tasks } = column;
+                return (
+                  <div key={id} className="w-[17.5rem] shrink-0">
+                    <p className="text-black">{`${name} (${
+                      tasks ? tasks?.length : 0
+                    })`}</p>
+
+                    {tasks &&
+                      // Display the tasks if there are tasks in the column, if not, display an empty column
+                      (tasks.length > 0 ? (
+                        tasks.map((task) => {
+                          const { id, title, status } = task;
+
+                          return (
+                            <div
+                              key={id}
+                              className="bg-white p-6 rounded-md mt-6 flex items-center justify-between border"
+                            >
+                              <p>{title}</p>
+                              <div className="flex items-center space-x-1">
+                                <MdEdit className="text-lg cursor-pointer" />
+                                <MdDelete className="text-lg cursor-pointer text-red-500" />
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="mt-6 h-full rounded-md border-dashed border-4 border-white" />
+                      ))}
                   </div>
-                ) : (
-                  ""
-                )}
-              </div>
-            </DragDropContext>
+                );
+              })}
+              {/* If the number of columns of tasks is less than 7, display an option to add more columns */}
+              {columns.length < 7 ? (
+                <div className="rounded-md bg-white w-[17.5rem] mt-12 shrink-0 flex justify-center items-center">
+                  <p className="cursor-pointer font-bold text-black text-2xl">
+                    + New Column
+                  </p>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
           ) : (
             <div className="w-full h-full flex justify-center items-center">
               <div className="flex flex-col items-center">
@@ -233,5 +192,4 @@ useEffect(() => {
       )}
     </div>
   );
-
 }

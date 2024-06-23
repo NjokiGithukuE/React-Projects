@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { rootReducer } from "./rootReducer";
-import { firestoreApi } from "./services/apiSlice";
+import { fireStoreApi } from "./services/apiSlice";
 
 export const store = configureStore({
     reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(firestoreApi.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(fireStoreApi.middleware),
 })
 
 setupListeners(store.dispatch);
