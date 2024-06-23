@@ -6,6 +6,7 @@ import {
   getAddAndEditBoardModalValue,
   getAddAndEditBoardModalVariantValue,
   closeAddAndEditBoardModal,
+  getCurrentBoardName
 } from "@/components/redux/features/appSlice";
 import {
   useFetchDataFromDbQuery,

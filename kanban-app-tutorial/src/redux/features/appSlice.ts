@@ -55,12 +55,10 @@ export const fireStoreApi = createApi({
 export const { useFetchDataFromDbQuery, useUpdateBoardToDbMutation } =
   fireStoreApi;
 
-//   const initialState = {
-//     //add and edit tasks modal state
-//     isAddAndEditTaskModal: { isOpen: false, variant: "", title: "", index: -1, name: ""},
-//     };
-
 const initialState = {
+  currentBoardName: "",
+  // Manage the state for opening and closing the Add and Edit Board modal
+  isAddAndEditBoardModal: { isOpen: false, variant: "" },
   //add and edit tasks modal state
   isAddAndEditTaskModal: {
     isOpen: false,
@@ -86,7 +84,7 @@ export const features = createSlice({
     setCurrentBoardName: (state, action: PayloadAction<string>) => {
       state.currentBoardName = action.payload;
     },
-    
+
     // Open the delete board and task modal with a specified variant (delete board or task)
     openDeleteBoardAndTaskModal: (state, { payload }) => {
       state.isDeleteBoardAndTaskModal.isOpen = true;
@@ -149,4 +147,3 @@ export const getAddAndEditBoardModalVariantValue = (state: RootState) =>
   state.features.isAddAndEditBoardModal.variant;
 // Export the reducer for use in the Redux store
 export default features.reducer;
- 
